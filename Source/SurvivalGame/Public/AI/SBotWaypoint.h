@@ -1,0 +1,18 @@
+//Copyright 1998 - 2018 MAG Studios Canada, Inc.All Rights Reserved.
+#pragma once
+
+#include "Engine/TargetPoint.h"
+#include "SBotWaypoint.generated.h"
+
+/**
+ * Waypoint helper for bots to generate waypoints during patrols. Object is placed in level to specify a potential patrol target location.
+ */
+UCLASS()
+class SURVIVALGAME_API ASBotWaypoint : public ATargetPoint
+{
+	GENERATED_BODY()
+	
+	
+	
+	
+};

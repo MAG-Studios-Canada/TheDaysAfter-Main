@@ -1,0 +1,125 @@
+// Copyright 1998-2018 MAG Studios Canada, Inc. All Rights Reserved.
+
+#include "RoadSystem.h"
+#include "SurvivalGame.h"
+#include "Runtime/Engine/Classes/Components/SplineMeshComponent.h"
+#include "Components/SplineComponent.h"
+
+// Sets default values
+ARoadSystem::ARoadSystem()
+{
+ 	
+	PrimaryActorTick.bCanEverTick = true;
+
+	//Create the Spline
+	SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("RoadSpline"));
+	SplineComponent->SetupAttachment(RootComponent);
+
+}
+
+void ARoadSystem::OnConstruction(const FTransform & Transform)
+{
+	// Store number of spline points
+	NumberOfPoints = SplineComponent->GetNumberOfSplinePoints();
+
+	// Build Road Data Array
+	int32 countDataEntries = RoadDataArray.Num();
+	while (countDataEntries != NumberOfPoints)
+	{
+		if (countDataEntries > NumberOfPoints)
+		{
+			RoadDataArray.RemoveAt(countDataEntries - 1);
+			countDataEntries--;
+		}
+		else if (countDataEntries < NumberOfPoints)
+		{
+			FRoadData RoadData;
+			RoadDataArray.Add(RoadData);
+			countDataEntries++;
+		}
+	}
+	
+	// Contruct Road Meshes check if optional meshes are used and build them
+	for (int32 i = 0; i <= NumberOfPoints = (Loops ? 1 : 2); i++)
+		{
+		
+			BuildRoadElement(i, RoadMesh);
+
+			if (RoadDataArray[i].LftOptMesh)
+				BuildRoadElement(i, LftOptMesh);
+
+			if (RoadDataArray[i].LftOptMesh1)
+				BuildRoadElement(i, LftOptMesh1);
+
+			if (RoadDataArray[i].RhtOptMesh)
+				BuildRoadElement(i, RhtOptMesh);
+
+			if (RoadDataArray[i].RhtOptMesh1)
+				BuildRoadElement(i, RhtOptMesh1);
+
+		}
+
+	//Debug
+	if (DrawPointNumbers)
+		{
+			for (int32 i = 0; i < NumberOfPoints; i++)
+				{
+					FVector location, tangent;
+					//FRotator rotation = (tangent * -1.0f).Rotation();
+
+					SplineComponent->GetLocationAndTangentAtSplinePoint( i, location, tangent, ESplineCoordinateSpace::Local );
+
+					// create text render object
+					UTextRenderComponent * TextRender = NewObject<UTextRenderComponent>(this);
+					TextRender->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+					TextRender->SetupAttachment(RootComponent);
+					TextRender->SetNetAddressable();
+					TextRender->SetIsReplicated(true);
+
+					// set offset of text
+					TextRender->SetRelativeLocation(location + FVector::UpVector * 75.0f);
+					TextRender->SetWorldRotation(FRotator::ZeroRotator);
+					TextRender->SetRelativeScale3D(FVector(3.0f, 3.0f, 3.0f));
+
+					// set text and colour
+					TextRender->TextMaterial = PointNumberMaterial;
+					TextRender->SetText (FText::AsNumber(i));    //(FString::FromInt(i)); depreciated trying new Ftext variaint may also need to include    FText::AsCultureInvariant( ) 
+					TextRender->SetTextRenderColor(FColor(0.5, 0.33666, 0.029835));
+				}
+		}
+	// called due to NewObject macro used in spline text render creation.
+	RegisterAllComponents();
+	
+}
+
+
+
+void ARoadSystem::BuildRoadElement(int32 LoopIndex, UStaticMesh * RoadMesh)
+{
+	int32 nextLoopIndex = (LoopIndex + 1) % NumberOfPoints;
+	FVector startlocation, starttangent, endlocation, endtangent;
+	
+	SplineComponent->GetLocationAndTangentAtSplinePoint(LoopIndex, startlocation, starttangent, ESplineCoordinateSpace::Local);
+	SplineComponent->GetLocationAndTangentAtSplinePoint(nextLoopIndex, endlocation, endtangent, ESplineCoordinateSpace::Local);
+
+	USplineMeshComponent* SplineMesh = NewObject<USplineMeshComponent>(this);
+	SplineMesh->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	SplineMesh->SetupAttachment(RootComponent);
+	SplineMesh->SetMobility(EComponentMobility::Movable);
+	SplineMesh->SetStaticMesh(RoadMesh);
+	// set location/rotation
+	SplineMesh->SetStartPosition(startlocation);
+	SplineMesh->SetEndPosition(endlocation);
+	// access the bank value from our array
+	SplineMesh->SetStartRoll(RoadDataArray[LoopIndex].RoadBank); 
+	SplineMesh->SetEndRoll(RoadDataArray[nextLoopIndex].RoadBank);
+	// set mesh scale
+	FVector2D startScale = FVector2D(RoadDataArray[LoopIndex].RoadWidth, RoadDataArray[LoopIndex].RoadThickness);
+	FVector2D endScale = FVector2D(RoadDataArray[nextLoopIndex].RoadWidth, RoadDataArray[nextLoopIndex].RoadThickness);
+	SplineMesh->SetStartScale(startScale);
+	SplineMesh->SetEndScale(endScale);
+	// enable disable collision
+	SplineMesh->SetCollisionEnabled(CollisionOn ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
+		
+}
+

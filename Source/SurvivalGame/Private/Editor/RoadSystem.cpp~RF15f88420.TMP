@@ -1,0 +1,54 @@
+// Copyright 1998-2018 MAG Studios Canada, Inc. All Rights Reserved.
+
+#include "RoadSystem.h"
+#include "SurvivalGame.h"
+#include "Components/SplineComponent.h"
+
+// Sets default values
+ARoadSystem::ARoadSystem()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	//Create the Spline
+	SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("RoadSpline"));
+	SplineComponent->SetupAttachment(RootComponent);
+
+}
+
+void ARoadSystem::OnConstruction(const FTransform & Transform)
+{
+	// Store number of spline points
+	NumberOfPoints = SplineComponent->GetNumberOfSplinePoints();
+
+	// Build Road Data Array
+	int32 countDataEntries = RoadDataArray.Num();
+	while (countDataEntries != NumberOfPoints)
+	{
+		if (countDataEntries > NumberOfPoints)
+		{
+			RoadDataArray.RemoveAt(countDataEntries - 1);
+			countDataEntries--;
+		}
+
+		else if (countDataEntries < NumberOfPoints)
+		{
+			FRoadData* RoadData;
+			RoadDataArray.Add(RoadData);
+			countDataEntries++;
+		}
+	}
+	// Contruct Road Meshes
+
+
+	//Debug
+
+}
+
+
+
+void ARoadSystem::BuildRoadElement(int32 LoopIndex, UStaticMesh * RoadMesh)
+{
+
+}
+

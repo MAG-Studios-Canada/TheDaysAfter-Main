@@ -1,0 +1,106 @@
+// Copyright 1998-2018 MAG Studios Canada, Inc. All Rights Reserved.
+
+#include "RoadSystem.h"
+#include "SurvivalGame.h"
+#include "Runtime/Engine/Classes/Components/SplineMeshComponent.h"
+#include "Components/SplineComponent.h"
+
+// Sets default values
+ARoadSystem::ARoadSystem()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	//Create the Spline
+	SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("RoadSpline"));
+	SplineComponent->SetupAttachment(RootComponent);
+
+}
+
+void ARoadSystem::OnConstruction(const FTransform & Transform)
+{
+	// Store number of spline points
+	NumberOfPoints = SplineComponent->GetNumberOfSplinePoints();
+
+	// Build Road Data Array
+	int32 countDataEntries = RoadDataArray.Num();
+	while (countDataEntries != NumberOfPoints)
+	{
+		if (countDataEntries > NumberOfPoints)
+		{
+			RoadDataArray.RemoveAt(countDataEntries - 1);
+			countDataEntries--;
+		}
+		else if (countDataEntries < NumberOfPoints)
+		{
+			FRoadData RoadData;
+			RoadDataArray.Add(RoadData);
+			countDataEntries++;
+		}
+	}
+
+	// Contruct Road Meshes
+	for (int32 i = 0; i <= NumberOfPoints = (Loops ? 1 : 2); i++);
+	{
+		BuildRoadElement(i, RoadMesh);
+
+		if (RoadDataArray[i].LftOptMesh)
+			BuildRoadElement(i, LftOptMesh);
+
+		if (RoadDataArray[i].LftOptMesh1)
+			BuildRoadElement(i, LftOptMesh1);
+
+		if (RoadDataArray[i].RhtOptmesh)
+			BuildRoadElement(i, RhtOptMesh);
+
+		if (RoadDataArray[i].RhtOptmesh1)
+			BuildRoadElement(i, RhtOptMesh1);
+
+	}
+
+	//Debug
+	if (DrawPointNumbers)
+	{
+		for (int32 i = 0; i < NumberOfPoints; i++);
+		{
+			FVector location, tangent;
+			SplineComponent->GetLocalLocationAndTangentAtSplinePoint(i, location, tangent);
+
+			FRotator rotation = (tangent * -1.0f).Rotation();
+
+
+			UTextRenderComponent * TextRender = NewObject<UTextRenderComponent>(this);
+			TextRender->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+			TextRender->SetupAttachment(RootComponent);
+			TextRender->SetRelativeLocation(location + FVector::UpVector * 75.0f);
+			TextRender->SetRelativeRotation(rotation);
+
+			TextRender->SetText(FString::FromInt(i));
+			TextRender->SetTextRenderColor(FColor(255, 0, 0));
+		}
+	}
+	
+	RegisterAllComponents();
+	
+}
+
+
+
+void ARoadSystem::BuildRoadElement(int32 LoopIndex, UStaticMesh * RoadMesh)
+{
+	int32 nextLoopIndex = (LoopIndex + 1) % NumberOfPoints;
+	FVector startlocation, starttangent, endlocation, endtangent;
+
+	SplineComponent->GetLocalLocationAndTangentAtSplinePoint(LoopIndex, startlocation, starttangent);
+	SplineComponent->GetLocalLocationAndTangentAtSplinePoint(nextLoopIndex, endlocation, endtangent);
+
+	USplineMeshComponent* SplineMesh = NewObject<USplineMeshComponent>(this);
+	SplineMesh->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	SplineMesh->SetupAttachment(RootComponent);
+	SplineMesh->SetMobility(EComponentMobility::Movable);
+	SplineMesh->SetStaticMesh(RoadMesh);
+	SplineMesh->SetStartandEnd(startlocation, starttangent, endlocation, endtangent);
+	SplineMesh->SetRoll(starttangent, endtangent);
+	
+}
+
