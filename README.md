@@ -1,7 +1,7 @@
 # TheDaysAfter-Main
 
 ************************************
-* TheDaysAfter - Survival Conflict *
+* TheDaysAfter - Survival Conflict 
 ************************************
 
 Repository of files for the days after survival conflict.
@@ -9,7 +9,7 @@ A FP/3P survival horror, FPS, Action, RPG
 by M.A.G. Studios Canada.
 
 *****************
-* Main Features * 
+* Main Features 
 *****************
 
 Menu System
@@ -19,7 +19,7 @@ Time System
 Weather System
 Character Improvment(Skill) System
 **************
-* GAME MODES *
+* GAME MODES 
 **************
 
 Survival-------Solo
