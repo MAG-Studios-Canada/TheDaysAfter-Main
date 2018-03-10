@@ -18,9 +18,10 @@ Clothing System<br>
 Time System<br>
 Weather System<br>
 Character Improvment(Skill) System<br><br>
-************************************
-* GAME MODES 
-************************************
+
+**************
+**GAME MODES**
+**************
 <br>
 Survival-------Solo<br>
 ---------------Co-Op<br>
@@ -32,6 +33,6 @@ Domination--Small 3 control points<br>
 Zombie------Solo<br>
 ---------------Co-Op<br>
 ---------------Adversarial<br><br>
-***********************************************************************************************************************
-* UPDATED March 10th 2018 All code matches current in use code. Engine version 4.18.3
-************************************
+*****************************************************************************************
+** UPDATED March 10th 2018 All code matches current in use code. Engine version 4.18.3 **
+*****************************************************************************************
